@@ -9,9 +9,13 @@ Tip: To see the diff between input and output:
 
 ```
 git diff --no-index jquery.input.js jquery.output.js
+git diff --no-index jquery.input.js jquery.output-edit.js
 ```
 
-You can see the output of that command here: [jquery.diff](jquery.diff).
+You can see the output of those commands here:
+
+- [jquery.diff](jquery.diff).
+- [jquery-edit.diff](jquery-edit.diff).
 
 ## Expected behavior (before minify)
 

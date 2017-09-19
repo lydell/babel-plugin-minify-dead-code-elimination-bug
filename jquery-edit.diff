@@ -1,0 +1,21 @@
+diff --git a/jquery.input.js b/jquery.output-edit.js
+index 90427cc..ccc067d 100644
+--- a/jquery.input.js
++++ b/jquery.output-edit.js
+@@ -6555,7 +6555,6 @@
+ 		    propTween,
+ 		    restoreDisplay,
+ 		    display,
+-		    isBox = "width" in props || "height" in props,
+ 		    anim = this,
+ 		    orig = {},
+ 		    style = elem.style,
+@@ -6617,7 +6616,7 @@
+ 		}
+ 
+ 		// Restrict "overflow" and "display" styles during box animations
+-		if (isBox && elem.nodeType === 1) {
++		if (("width" in props || "height" in props) && elem.nodeType === 1) {
+ 
+ 			// Support: IE <=9 - 11, Edge 12 - 13
+ 			// Record all 3 overflow attributes because IE does not infer the shorthand
