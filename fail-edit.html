@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Failing test with edited output</title>
+    <style>
+      #box {
+        width: 300px;
+        height: 300px;
+        background-color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <button type="button" id="button">
+      Toggle the red box
+    </button>
+    <div id="box">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </div>
+
+    <p style="width: 300px;">
+      As the height of the red box changes, notice how <strong><code>overflow: hidden;</code> is not added</strong> so that the text <em>does</em> stick out side the red box.
+    </p>
+
+    <!-- NOTE: jquery.output-EDIT.js is used here. -->
+    <script src="jquery.output-edit.js"></script>
+    <script>
+      $("#button").on("click", () => {
+        $("#box").slideToggle();
+      });
+    </script>
+  </body>
+</html>

@@ -1,5 +1,5 @@
 diff --git a/jquery.input.js b/jquery.output.js
-index 90427cc..78c1c99 100644
+index 90427cc..1599ebc 100644
 --- a/jquery.input.js
 +++ b/jquery.output.js
 @@ -321,13 +321,13 @@
@@ -519,10 +519,3 @@ index 90427cc..78c1c99 100644
  								statusCode[code] = [statusCode[code], map[code]];
  							}
  						}
-@@ -9821,4 +9818,4 @@
- 	}
- 
- 	return jQuery;
--});
-+});
-\ No newline at end of file

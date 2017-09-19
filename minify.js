@@ -13,5 +13,6 @@ const result2 = babel.transform(result1.code, {
 assert(result2.code.length < result1.code.length);
 
 fs.writeFileSync("jquery.original.js", input);
-fs.writeFileSync("jquery.input.js", result1.code);
-fs.writeFileSync("jquery.output.js", result2.code);
+fs.writeFileSync("jquery.input.js", result1.code + "\n");
+fs.writeFileSync("jquery.output.js", result2.code + "\n");
+fs.writeFileSync("jquery.output-edit.js", result1.code + "\n");

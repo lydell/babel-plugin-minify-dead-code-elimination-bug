@@ -1,2 +1,3 @@
 /jquery*
+!/jquery.output-edit.js
 /node_modules/
