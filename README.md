@@ -11,6 +11,8 @@ Tip: To see the diff between input and output:
 git diff --no-index jquery.input.js jquery.output.js
 ```
 
+You can see the output of that command here: [jquery.diff](jquery.diff).
+
 ## Expected behavior (before minify)
 
 ![pass.gif](pass.gif)

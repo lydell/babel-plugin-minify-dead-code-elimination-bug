@@ -1,0 +1,528 @@
+diff --git a/jquery.input.js b/jquery.output.js
+index 90427cc..78c1c99 100644
+--- a/jquery.input.js
++++ b/jquery.output.js
+@@ -321,13 +321,13 @@
+ 
+ 		isEmptyObject: function (obj) {
+ 
++			for (var name in obj) {
++				return false;
++			}
++
+ 			/* eslint-disable no-unused-vars */
+ 			// See https://github.com/eslint/eslint/issues/6125
+-			var name;
+ 
+-			for (name in obj) {
+-				return false;
+-			}
+ 			return true;
+ 		},
+ 
+@@ -418,14 +418,13 @@
+ 			var callbackInverse,
+ 			    matches = [],
+ 			    i = 0,
+-			    length = elems.length,
+-			    callbackExpect = !invert;
++			    length = elems.length;
+ 
+ 			// Go through the array, only saving the items
+ 			// that pass the validator function
+ 			for (; i < length; i++) {
+ 				callbackInverse = !callback(elems[i], i);
+-				if (callbackInverse !== callbackExpect) {
++				if (callbackInverse !== !invert) {
+ 					matches.push(elems[i]);
+ 				}
+ 			}
+@@ -590,6 +589,7 @@
+ 		    push = arr.push,
+ 		    slice = arr.slice,
+ 
++
+ 		// Use a stripped-down indexOf as it's faster than native
+ 		// https://jsperf.com/thor-indexof-vs-for/5
+ 		indexOf = function (list, elem) {
+@@ -1214,6 +1214,7 @@
+ 				    tmp = [],
+ 				    i = 0,
+ 
++
+ 				// By happy coincidence, a (broken) gEBTN appears on DocumentFragment nodes too
+ 				results = context.getElementsByTagName(tag);
+ 
+@@ -1506,6 +1507,7 @@
+ 
+ 			var fn = Expr.attrHandle[name.toLowerCase()],
+ 
++
+ 			// Don't get fooled by Object.prototype properties (jQuery #13807)
+ 			val = fn && hasOwn.call(Expr.attrHandle, name.toLowerCase()) ? fn(elem, name, !documentIsHTML) : undefined;
+ 
+@@ -2251,14 +2253,13 @@
+ 			var elem,
+ 			    newUnmatched = [],
+ 			    i = 0,
+-			    len = unmatched.length,
+-			    mapped = map != null;
++			    len = unmatched.length;
+ 
+ 			for (; i < len; i++) {
+ 				if (elem = unmatched[i]) {
+ 					if (!filter || filter(elem, context, xml)) {
+ 						newUnmatched.push(elem);
+-						if (mapped) {
++						if (map != null) {
+ 							map.push(i);
+ 						}
+ 					}
+@@ -2419,9 +2420,11 @@
+ 				    setMatched = [],
+ 				    contextBackup = outermostContext,
+ 
++
+ 				// We must always have either seed elements or outermost context
+ 				elems = seed || byElement && Expr.find["TAG"]("*", outermost),
+ 
++
+ 				// Use integer dirruns iff this is the outermost matcher
+ 				dirrunsUnique = dirruns += contextBackup == null ? 1 : Math.random() || 0.1,
+ 				    len = elems.length;
+@@ -2727,7 +2730,7 @@
+ 	function nodeName(elem, name) {
+ 
+ 		return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
+-	};
++	}
+ 	var rsingleTag = /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i;
+ 
+ 	var risSimple = /^.[^:#\[\.,]*$/;
+@@ -5476,7 +5479,6 @@
+ 		    doc,
+ 		    i = 0,
+ 		    l = collection.length,
+-		    iNoClone = l - 1,
+ 		    value = args[0],
+ 		    isFunction = jQuery.isFunction(value);
+ 
+@@ -5510,7 +5512,7 @@
+ 				for (; i < l; i++) {
+ 					node = fragment;
+ 
+-					if (i !== iNoClone) {
++					if (i !== l - 1) {
+ 						node = jQuery.clone(node, true, true);
+ 
+ 						// Keep references to cloned scripts for later restoration
+@@ -6546,184 +6548,6 @@
+ 		}
+ 	}
+ 
+-	function defaultPrefilter(elem, props, opts) {
+-		var prop,
+-		    value,
+-		    toggle,
+-		    hooks,
+-		    oldfire,
+-		    propTween,
+-		    restoreDisplay,
+-		    display,
+-		    isBox = "width" in props || "height" in props,
+-		    anim = this,
+-		    orig = {},
+-		    style = elem.style,
+-		    hidden = elem.nodeType && isHiddenWithinTree(elem),
+-		    dataShow = dataPriv.get(elem, "fxshow");
+-
+-		// Queue-skipping animations hijack the fx hooks
+-		if (!opts.queue) {
+-			hooks = jQuery._queueHooks(elem, "fx");
+-			if (hooks.unqueued == null) {
+-				hooks.unqueued = 0;
+-				oldfire = hooks.empty.fire;
+-				hooks.empty.fire = function () {
+-					if (!hooks.unqueued) {
+-						oldfire();
+-					}
+-				};
+-			}
+-			hooks.unqueued++;
+-
+-			anim.always(function () {
+-
+-				// Ensure the complete handler is called before this completes
+-				anim.always(function () {
+-					hooks.unqueued--;
+-					if (!jQuery.queue(elem, "fx").length) {
+-						hooks.empty.fire();
+-					}
+-				});
+-			});
+-		}
+-
+-		// Detect show/hide animations
+-		for (prop in props) {
+-			value = props[prop];
+-			if (rfxtypes.test(value)) {
+-				delete props[prop];
+-				toggle = toggle || value === "toggle";
+-				if (value === (hidden ? "hide" : "show")) {
+-
+-					// Pretend to be hidden if this is a "show" and
+-					// there is still data from a stopped show/hide
+-					if (value === "show" && dataShow && dataShow[prop] !== undefined) {
+-						hidden = true;
+-
+-						// Ignore all other no-op show/hide data
+-					} else {
+-						continue;
+-					}
+-				}
+-				orig[prop] = dataShow && dataShow[prop] || jQuery.style(elem, prop);
+-			}
+-		}
+-
+-		// Bail out if this is a no-op like .hide().hide()
+-		propTween = !jQuery.isEmptyObject(props);
+-		if (!propTween && jQuery.isEmptyObject(orig)) {
+-			return;
+-		}
+-
+-		// Restrict "overflow" and "display" styles during box animations
+-		if (isBox && elem.nodeType === 1) {
+-
+-			// Support: IE <=9 - 11, Edge 12 - 13
+-			// Record all 3 overflow attributes because IE does not infer the shorthand
+-			// from identically-valued overflowX and overflowY
+-			opts.overflow = [style.overflow, style.overflowX, style.overflowY];
+-
+-			// Identify a display type, preferring old show/hide data over the CSS cascade
+-			restoreDisplay = dataShow && dataShow.display;
+-			if (restoreDisplay == null) {
+-				restoreDisplay = dataPriv.get(elem, "display");
+-			}
+-			display = jQuery.css(elem, "display");
+-			if (display === "none") {
+-				if (restoreDisplay) {
+-					display = restoreDisplay;
+-				} else {
+-
+-					// Get nonempty value(s) by temporarily forcing visibility
+-					showHide([elem], true);
+-					restoreDisplay = elem.style.display || restoreDisplay;
+-					display = jQuery.css(elem, "display");
+-					showHide([elem]);
+-				}
+-			}
+-
+-			// Animate inline elements as inline-block
+-			if (display === "inline" || display === "inline-block" && restoreDisplay != null) {
+-				if (jQuery.css(elem, "float") === "none") {
+-
+-					// Restore the original display value at the end of pure show/hide animations
+-					if (!propTween) {
+-						anim.done(function () {
+-							style.display = restoreDisplay;
+-						});
+-						if (restoreDisplay == null) {
+-							display = style.display;
+-							restoreDisplay = display === "none" ? "" : display;
+-						}
+-					}
+-					style.display = "inline-block";
+-				}
+-			}
+-		}
+-
+-		if (opts.overflow) {
+-			style.overflow = "hidden";
+-			anim.always(function () {
+-				style.overflow = opts.overflow[0];
+-				style.overflowX = opts.overflow[1];
+-				style.overflowY = opts.overflow[2];
+-			});
+-		}
+-
+-		// Implement show/hide animations
+-		propTween = false;
+-		for (prop in orig) {
+-
+-			// General show/hide setup for this element animation
+-			if (!propTween) {
+-				if (dataShow) {
+-					if ("hidden" in dataShow) {
+-						hidden = dataShow.hidden;
+-					}
+-				} else {
+-					dataShow = dataPriv.access(elem, "fxshow", { display: restoreDisplay });
+-				}
+-
+-				// Store hidden/visible for toggle so `.stop().toggle()` "reverses"
+-				if (toggle) {
+-					dataShow.hidden = !hidden;
+-				}
+-
+-				// Show elements before animating them
+-				if (hidden) {
+-					showHide([elem], true);
+-				}
+-
+-				/* eslint-disable no-loop-func */
+-
+-				anim.done(function () {
+-
+-					/* eslint-enable no-loop-func */
+-
+-					// The final step of a "hide" animation is actually hiding the element
+-					if (!hidden) {
+-						showHide([elem]);
+-					}
+-					dataPriv.remove(elem, "fxshow");
+-					for (prop in orig) {
+-						jQuery.style(elem, prop, orig[prop]);
+-					}
+-				});
+-			}
+-
+-			// Per-property setup
+-			propTween = createTween(hidden ? dataShow[prop] : 0, prop, anim);
+-			if (!(prop in dataShow)) {
+-				dataShow[prop] = propTween.start;
+-				if (hidden) {
+-					propTween.end = propTween.start;
+-					propTween.start = 0;
+-				}
+-			}
+-		}
+-	}
+-
+ 	function propFilter(props, specialEasing) {
+ 		var index, name, easing, value, hooks;
+ 
+@@ -6909,7 +6733,182 @@
+ 			}
+ 		},
+ 
+-		prefilters: [defaultPrefilter],
++		prefilters: [function (elem, props, opts) {
++			var prop,
++			    value,
++			    toggle,
++			    hooks,
++			    oldfire,
++			    propTween,
++			    restoreDisplay,
++			    display,
++			    anim = this,
++			    orig = {},
++			    style = elem.style,
++			    hidden = elem.nodeType && isHiddenWithinTree(elem),
++			    dataShow = dataPriv.get(elem, "fxshow");
++
++			// Queue-skipping animations hijack the fx hooks
++			if (!opts.queue) {
++				hooks = jQuery._queueHooks(elem, "fx");
++				if (hooks.unqueued == null) {
++					hooks.unqueued = 0;
++					oldfire = hooks.empty.fire;
++					hooks.empty.fire = function () {
++						if (!hooks.unqueued) {
++							oldfire();
++						}
++					};
++				}
++				hooks.unqueued++;
++
++				anim.always(function () {
++
++					// Ensure the complete handler is called before this completes
++					anim.always(function () {
++						hooks.unqueued--;
++						if (!jQuery.queue(elem, "fx").length) {
++							hooks.empty.fire();
++						}
++					});
++				});
++			}
++
++			// Detect show/hide animations
++			for (prop in props) {
++				value = props[prop];
++				if (rfxtypes.test(value)) {
++					delete props[prop];
++					toggle = toggle || value === "toggle";
++					if (value === (hidden ? "hide" : "show")) {
++
++						// Pretend to be hidden if this is a "show" and
++						// there is still data from a stopped show/hide
++						if (value === "show" && dataShow && dataShow[prop] !== undefined) {
++							hidden = true;
++
++							// Ignore all other no-op show/hide data
++						} else {
++							continue;
++						}
++					}
++					orig[prop] = dataShow && dataShow[prop] || jQuery.style(elem, prop);
++				}
++			}
++
++			// Bail out if this is a no-op like .hide().hide()
++			propTween = !jQuery.isEmptyObject(props);
++			if (!propTween && jQuery.isEmptyObject(orig)) {
++				return;
++			}
++
++			// Restrict "overflow" and "display" styles during box animations
++			if (("width" in props || "height" in props) && elem.nodeType === 1) {
++
++				// Support: IE <=9 - 11, Edge 12 - 13
++				// Record all 3 overflow attributes because IE does not infer the shorthand
++				// from identically-valued overflowX and overflowY
++				opts.overflow = [style.overflow, style.overflowX, style.overflowY];
++
++				// Identify a display type, preferring old show/hide data over the CSS cascade
++				restoreDisplay = dataShow && dataShow.display;
++				if (restoreDisplay == null) {
++					restoreDisplay = dataPriv.get(elem, "display");
++				}
++				display = jQuery.css(elem, "display");
++				if (display === "none") {
++					if (restoreDisplay) {
++						display = restoreDisplay;
++					} else {
++
++						// Get nonempty value(s) by temporarily forcing visibility
++						showHide([elem], true);
++						restoreDisplay = elem.style.display || restoreDisplay;
++						display = jQuery.css(elem, "display");
++						showHide([elem]);
++					}
++				}
++
++				// Animate inline elements as inline-block
++				if (display === "inline" || display === "inline-block" && restoreDisplay != null) {
++					if (jQuery.css(elem, "float") === "none") {
++
++						// Restore the original display value at the end of pure show/hide animations
++						if (!propTween) {
++							anim.done(function () {
++								style.display = restoreDisplay;
++							});
++							if (restoreDisplay == null) {
++								display = style.display;
++								restoreDisplay = display === "none" ? "" : display;
++							}
++						}
++						style.display = "inline-block";
++					}
++				}
++			}
++
++			if (opts.overflow) {
++				style.overflow = "hidden";
++				anim.always(function () {
++					style.overflow = opts.overflow[0];
++					style.overflowX = opts.overflow[1];
++					style.overflowY = opts.overflow[2];
++				});
++			}
++
++			// Implement show/hide animations
++			propTween = false;
++			for (prop in orig) {
++
++				// General show/hide setup for this element animation
++				if (!propTween) {
++					if (dataShow) {
++						if ("hidden" in dataShow) {
++							hidden = dataShow.hidden;
++						}
++					} else {
++						dataShow = dataPriv.access(elem, "fxshow", { display: restoreDisplay });
++					}
++
++					// Store hidden/visible for toggle so `.stop().toggle()` "reverses"
++					if (toggle) {
++						dataShow.hidden = !hidden;
++					}
++
++					// Show elements before animating them
++					if (hidden) {
++						showHide([elem], true);
++					}
++
++					/* eslint-disable no-loop-func */
++
++					anim.done(function () {
++
++						/* eslint-enable no-loop-func */
++
++						// The final step of a "hide" animation is actually hiding the element
++						if (!hidden) {
++							showHide([elem]);
++						}
++						dataPriv.remove(elem, "fxshow");
++						for (prop in orig) {
++							jQuery.style(elem, prop, orig[prop]);
++						}
++					});
++				}
++
++				// Per-property setup
++				propTween = createTween(hidden ? dataShow[prop] : 0, prop, anim);
++				if (!(prop in dataShow)) {
++					dataShow[prop] = propTween.start;
++					if (hidden) {
++						propTween.end = propTween.start;
++						propTween.start = 0;
++					}
++				}
++			}
++		}],
+ 
+ 		prefilter: function (callback, prepend) {
+ 			if (prepend) {
+@@ -8034,7 +8033,6 @@
+ 	    rsubmittable = /^(?:input|select|textarea|keygen)/i;
+ 
+ 	function buildParams(prefix, obj, traditional, add) {
+-		var name;
+ 
+ 		if (Array.isArray(obj)) {
+ 
+@@ -8053,7 +8051,7 @@
+ 		} else if (!traditional && jQuery.type(obj) === "object") {
+ 
+ 			// Serialize object item.
+-			for (name in obj) {
++			for (var name in obj) {
+ 				buildParams(prefix + "[" + name + "]", obj[name], traditional, add);
+ 			}
+ 		} else {
+@@ -8628,7 +8626,6 @@
+ 
+ 				// Status-dependent callbacks
+ 				statusCode: function (map) {
+-					var code;
+ 					if (map) {
+ 						if (completed) {
+ 
+@@ -8637,7 +8634,7 @@
+ 						} else {
+ 
+ 							// Lazy-add the new callbacks in a way that preserves old ones
+-							for (code in map) {
++							for (var code in map) {
+ 								statusCode[code] = [statusCode[code], map[code]];
+ 							}
+ 						}
+@@ -9821,4 +9818,4 @@
+ 	}
+ 
+ 	return jQuery;
+-});
++});
+\ No newline at end of file
