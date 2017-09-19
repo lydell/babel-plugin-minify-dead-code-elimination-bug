@@ -5,6 +5,7 @@
 3. `node minimal.js`
 4. Open `pass.html` in a browser.
 5. Open `fail.html` in a browser.
+6. Open `fail-edit.html` in a browser.
 
 Tip: To see the diff between input and output:
 
